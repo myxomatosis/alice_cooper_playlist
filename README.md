@@ -4,7 +4,7 @@ A script for archiving the Nights with Alice Cooper playlists
 
 You can install the by moving the script to ~/bin/ or downloading it straight there:
 ```
-wget -O ~/bin/alice.sh https://github.com/myxomatosis/alice_cooper_playlist/raw/master/alice
+wget -O ~/bin/alice.sh https://github.com/myxomatosis/alice_cooper_playlist/raw/master/alice.sh
 ```
 Permissions need to allow it to execute:
 ```
