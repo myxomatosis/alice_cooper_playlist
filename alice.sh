@@ -1,14 +1,16 @@
 #!/bin/bash
-# Version 0.0.2
+# Version 0.5.0
 
 # Define site URL
 site="http://www.nightswithalicecooper.com/on-the-air/last-nights-music/page"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+lastpg=1796
 
 # Find the oldest playlist
 old () {
 while true ; do
 	entry="entry-title"
-	for pg in {1795..9999} ; do 
+	for pg in $(eval echo {$lastpg..9999}) ; do 
 		entry=$(curl -ks $site/$pg | grep -o entry-title)
 		if [ ! "$entry" == "entry-title" ] ; then
 			break
@@ -19,13 +21,23 @@ while true ; do
 	fi
 done
 echo "$site/$(($pg - 1))"
-lastpg=$(($pg -1))
+lastpg=1796
 export lastpg
+}
+
+terribleidea_sed_update () {
+# Why would you do this? It's such a bad idea?
+# I enjoy pain.
+if [ ! -d $DIR/bak ] ; then
+	mkdir $DIR/bak
+fi
+sed -i.bak -r "s/^lastpg=[0-9]*/lastpg=$lastpg/" $DIR/alice.sh
+mv $DIR/alice.sh.bak $DIR/bak/alice.sh.$(date +%F_%T)
 }
 
 check_if_uptodate () {
 # Check the latest has been downloaded
-ls unaltered/playlist.$lastpg
+ls $DIR/unaltered/playlist.$lastpg
 if [ $? -eq 0 ] ; then
 	echo "Everything is up-to-date!"
 else
@@ -35,15 +47,15 @@ fi
 
 get_playlists () {
 echo "Getting missing playlists"
-if [ ! -d unaltered ] ; then
-	echo "Making unaltered directory"
-	mkdir unaltered
+if [ ! -d $DIR/unaltered ] ; then
+	echo "Making $DIR/unaltered directory"
+	mkdir $DIR/unaltered
 	for pg in $(eval echo {$lastpg..1}) ; do
 		echo "Downloading playlist.$((($lastpg - $pg + 1))) $site/$pg"
-		wget -qO unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
+		wget -qO $DIR/unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
 	done
 else
-	lastpl=$(ls -v unaltered | tail -n1 | sed 's/playlist.//')
+	lastpl=$(ls -v $DIR/unaltered | tail -n1 | sed 's/playlist.//')
 	if [ "$lastpl" == "" ] ; then
 		lastpl=1
 		echo "Starting with $lastpl as none seem to exist"
@@ -53,12 +65,14 @@ else
 	fi
 	for pg in $(eval echo {$((($lastpg - $lastpl + 1)))..1}) ; do
 		echo "Downloading playlist.$((($lastpg - $pg + 1))) $site/$pg"
-		wget -qO unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
+		wget -qO $DIR/unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
 	done
 fi
 }
 
 echo "running old"
 old
+echo "running terribleidea_sed_update"
+terribleidea_sed_update
 echo "running check_if_uptodate"
 check_if_uptodate
