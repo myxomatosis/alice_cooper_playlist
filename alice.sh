@@ -28,10 +28,13 @@ export lastpg
 terribleidea_sed_update () {
 # Why would you do this? It's such a bad idea?
 # I enjoy pain.
+sed -i.bak -r "s/^lastpg=[0-9]*/lastpg=$lastpg/" $DIR/alice.sh
+}
+
+terrible_backup () {
 if [ ! -d $DIR/bak ] ; then
 	mkdir $DIR/bak
 fi
-sed -i.bak -r "s/^lastpg=[0-9]*/lastpg=$lastpg/" $DIR/alice.sh
 mv $DIR/alice.sh.bak $DIR/bak/alice.sh.$(date +%F_%T)
 }
 
@@ -74,5 +77,8 @@ echo "running old"
 old
 echo "running terribleidea_sed_update"
 terribleidea_sed_update
+echo "running terrible_backup"
+terrible_backup
 echo "running check_if_uptodate"
 check_if_uptodate
+
