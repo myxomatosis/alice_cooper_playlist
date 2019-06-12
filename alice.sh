@@ -1,5 +1,5 @@
 #!/bin/bash
-# Version 0.0.1
+# Version 0.0.2
 
 # Define site URL
 site="http://www.nightswithalicecooper.com/on-the-air/last-nights-music/page"
@@ -38,12 +38,12 @@ echo "Getting missing playlists"
 if [ ! -d unaltered ] ; then
 	echo "Making unaltered directory"
 	mkdir unaltered
-	for pg in $(eval echo {1..$lastpg}) ; do
+	for pg in $(eval echo {$lastpg..1}) ; do
 		echo "Downloading playlist.$((($lastpg - $pg + 1))) $site/$pg"
-		wget -O unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
+		wget -qO unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
 	done
 else
-	lastpl=$(ls -v unaltered | tail -n1 | sed 's/page.//')
+	lastpl=$(ls -v unaltered | tail -n1 | sed 's/playlist.//')
 	if [ "$lastpl" == "" ] ; then
 		lastpl=1
 		echo "Starting with $lastpl as none seem to exist"
@@ -51,9 +51,9 @@ else
 		lastpl=$((($lastpl + 1)))
 		echo "Starting with $lastpl"
 	fi
-	for pg in $(eval echo {$lastpl..$lastpg}) ; do
+	for pg in $(eval echo {$((($lastpg - $lastpl + 1)))..1}) ; do
 		echo "Downloading playlist.$((($lastpg - $pg + 1))) $site/$pg"
-		wget -O unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
+		wget -qO unaltered/playlist.$((($lastpg - $pg + 1))) $site/$pg
 	done
 fi
 }
