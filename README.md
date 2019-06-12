@@ -33,8 +33,11 @@ Move the script to the directory you would like all the playlists downloaded to 
 ```
 
 Further explaination:
+
 Everytime it is run it will create a backup of the script in the bak directory. This is for debugging issues later and should probably be commented out. It will take a long time to cause issues though.
-It will update itself using sed so I can avoid writing more code. It should use an algerithim to find the oldest playlist but instead it updates every time it runs with what the oldest one was. This helps the script find the oldest playlist faster and reduce the load on http://www.nightswithalicecooper.com.
+
+It will update itself using sed so I can avoid writing more code. It should use an algorithm to find the oldest playlist but instead it updates every time it runs with what the oldest one was. This helps the script find the oldest playlist faster and reduce the load on http://www.nightswithalicecooper.com.
+
 The main feature of the script is downloading all the playlists to a directory called unaltered, which is created where the script is run from. This is forshadowing later versions or different scripts which will alter the playlists.
 
 I recommend creating a cronjob for the script to run daily or weekly.
