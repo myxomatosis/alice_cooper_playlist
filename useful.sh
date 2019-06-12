@@ -16,10 +16,12 @@ done
 }
 
 alter () {
-# Remove blank lines
+# Remove empty lines
 sed -i '/^\s*$/d' $DIR/altered/*
+# Remove empty spaces at the end of a line
+sed -i 's/\s*$//' $DIR/altered/*
 
 }
 
-#creation
+creation
 alter
