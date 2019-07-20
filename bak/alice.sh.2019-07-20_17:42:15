@@ -4,7 +4,7 @@
 # Define site URL
 site="http://www.nightswithalicecooper.com/on-the-air/last-nights-music/page"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-lastpg=1822
+lastpg=1796
 
 # Find the oldest playlist
 old () {
@@ -24,12 +24,13 @@ done
 echo "$site/$(($pg - 1))"
 lastpg="$(($pg - 1))"
 export lastpg
+echo $lastpg
 }
 
 terribleidea_sed_update () {
 # Why would you do this? It's such a bad idea?
 # I enjoy pain.
-sed -i.bak -r "s/^lastpg=[0-9]*$/lastpg=$lastpg/" $DIR/alice.sh
+sed -i.bak -r "s/^lastpg=[0-9]*/lastpg=$lastpg/" $DIR/alice.sh
 }
 
 terrible_backup () {
