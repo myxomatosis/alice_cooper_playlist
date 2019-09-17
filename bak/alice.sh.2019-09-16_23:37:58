@@ -23,6 +23,7 @@ done
 echo "$site/$(($pg - 1))"
 lastpg="$(($pg - 1))"
 export lastpg
+echo "old $lastpg"
 }
 
 terribleidea_sed_update () {

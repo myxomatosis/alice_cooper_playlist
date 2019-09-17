@@ -4,7 +4,7 @@
 # Define site URL
 site="http://www.nightswithalicecooper.com/on-the-air/last-nights-music/page"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-lastpg=1858
+lastpg=1824
 
 # Find the oldest playlist
 old () {
