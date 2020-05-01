@@ -1,2 +1,2 @@
 *.sh linguist-detectable=true
-* linguist-detectable=false
+playlist* linguist-detectable=false
