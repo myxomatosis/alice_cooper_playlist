@@ -1,47 +1,69 @@
-#!python
-import requests
-import json
-from time import sleep
+#!/usr/bin/env python3.10
+import requests, json, time, sys, http.client
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
+'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
 }
 
 def api_call_list(page, headers=headers):
-    url = f'https://nightswithalicecooper.com/wp-json/wp/v2/posts?_fields=title,link,id&sort=publish_date&categories=4&per_page=100&page={page}'
-    
-    response = requests.request("GET", url, headers=headers)
-    data = response.json()
+    print(f"page is {page}. headers are {headers}.")
+    conn = http.client.HTTPSConnection("nightswithalicecooper.com")
+    # conn.request("GET", f'wp-json/wp/v2/posts?_fields=title,link,id&sort=publish_date&categories=4&per_page=100&page={page}')
+    conn.request("GET", f"wp-json/wp/v2/posts?_fields=title,link,id&sort=publish_date&categories=4&per_page=1&page={page}")
+    r1 = conn.getresponse()
+
+    response = r1.read()
+    try:
+        data = json.loads(response.decode("utf-8"))
+    except:
+        print(page)
+        print(response)
+        sys.exit(str(r1.status) + " " + r1.reason)
 
     return response, data
 
 def api_call_get(id, headers=headers):
-    url = f'https://nightswithalicecooper.com/wp-json/wp/v2/posts/{id}'
+    print(f"id is {id}. headers are {headers}")
+    conn = http.client.HTTPSConnection("nightswithalicecooper.com")
+    conn.request("GET", f"/wp-json/wp/v2/posts/{id}")
+    r1 = conn.getresponse()
 
-    response = requests.request("GET", url, headers=headers)
-    data = response.json()
+    response = r1.read()
+    try:
+        data = json.loads(response.decode("utf-8"))
+    except:
+        print(id)
+        print(response)
+        sys.exit(str(r1.status) + " " + r1.reason)
 
     return data
+
 
 def get_post_list():
     api_response = api_call_list(1)
     response, data = api_response[0], api_response[1]
 
-    for number in range(2, int(response.headers["X-WP-TotalPages"]) + 1):
+    #for number in range(2, int(response.getheaders["X-WP-TotalPages"]) + 1):
+    for number in range(2, 3):
+        print(response.getheaders)
+        print(response.headers)
         response = api_call_list(number)[0]
         for i in response.json():
             data.append(i)
-        sleep(2)
+        time.sleep(2)
 
     return data
+
 
 def get_post_content(data):
     list = []
     for i in data:
-        list.append(api_call_get(i["id"]))
-        sleep(2)
+        response = api_call_get(i["id"])
+        list.append(response)
+        time.sleep(2)
 
     return list
+
 
 def is_file_empty_3(file_name):
     """ Check if file is empty by reading first character in it"""
@@ -54,8 +76,10 @@ def is_file_empty_3(file_name):
            return True
     return False
 
+
 def print_stuff(data):
     print(json.dumps(data, indent=4))
+
 
 def write_files(list):
     for i in list:
@@ -72,6 +96,13 @@ def write_files(list):
             else:
                 print("non-zero file exists: " + name)
 
-data = get_post_list()
-list = get_post_content(data)
-write_files(list)
+
+
+def main():
+    data = get_post_list()
+    list = get_post_content(data)
+    write_files(list)
+
+
+if __name__ == "__main__":
+    main()
