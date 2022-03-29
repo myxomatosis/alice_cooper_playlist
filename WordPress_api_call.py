@@ -15,16 +15,20 @@ console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
 logger = logging.getLogger(__name__)
+if logger.isEnabledFor(logging.DEBUG):
+    debug = True
+else:
+    debug = False
 
 headers = {
 'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
 }
 
 def api_call_list(page, headers=headers):
-    if logger.isEnabledFor(logging.DEBUG):
+    if debug:
         logging.debug(f"page is {page}. headers are {headers}.")
     conn = http.client.HTTPSConnection("nightswithalicecooper.com")
-    if logger.isEnabledFor(logging.DEBUG):
+    if debug:
         logging.debug(f'conn.request("GET", f"wp-json/wp/v2/posts?_fields=title,link,id&sort=publish_date&categories=4&per_page=1&page={page}")')
     try:
         conn.request("GET", f"/wp-json/wp/v2/posts?_fields=title,link,id&sort=publish_date&categories=4&per_page=100&page={page}", "", headers)
@@ -48,7 +52,7 @@ def api_call_list(page, headers=headers):
 
 
 def api_call_get(id, headers=headers):
-    if logger.isEnabledFor(logging.DEBUG):
+    if debug:
         logging.debug(f"id is {id}. headers are {headers}")
     conn = http.client.HTTPSConnection("nightswithalicecooper.com")
     try:
@@ -75,22 +79,23 @@ def api_call_get(id, headers=headers):
 def get_post_list():
     api_response = api_call_list(1)
     response, data = api_response[0], api_response[1]
-    if logger.isEnabledFor(logging.DEBUG):
+    if debug:
         logging.debug(f"response is: {response}")
         logging.debug(f"response.getheaders() is: {response.getheaders()}")
         logging.debug(f"response.getheaders()[14] is: {response.getheaders()[14]}")
-    for number in range(2, int(response.getheaders()[13][1]) + 1):
-        if logger.isEnabledFor(logging.DEBUG):
-            logging.debug(f"Running for loop in get_post_list. number is: {number}")
-        response = api_call_list(number)[1]
-        if logger.isEnabledFor(logging.DEBUG):
-            logging.debug(f"response is: {response}\nresponse is type: {type(response)}")
-            logging.debug(f"data is: {data}\n data is type: {type(data)}")
-        for i in response:
-            if logger.isEnabledFor(logging.DEBUG):
-                logging.debug(f"i is: {i}\ni is type: {type(i)}")
-            data.append(i)
-        time.sleep(1)
+# Uncomment to download all playlists
+#    for number in range(2, int(response.getheaders()[13][1]) + 1):
+#        if debug:
+#            logging.debug(f"Running for loop in get_post_list. number is: {number}")
+#        response = api_call_list(number)[1]
+#        if debug:
+#            logging.debug(f"response is: {response}\nresponse is type: {type(response)}")
+#            logging.debug(f"data is: {data}\n data is type: {type(data)}")
+#        for i in response:
+#            if debug:
+#                logging.debug(f"i is: {i}\ni is type: {type(i)}")
+#            data.append(i)
+#        time.sleep(1)
     return data
 
 
