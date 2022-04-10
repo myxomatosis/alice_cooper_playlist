@@ -29,7 +29,7 @@ def api_call_list(page, headers=headers):
         logging.debug(f"page is {page}. headers are {headers}.")
     conn = http.client.HTTPSConnection("nightswithalicecooper.com")
     if debug:
-        logging.debug(f'conn.request("GET", f"wp-json/wp/v2/posts?_fields=title,link,id&sort=publish_date&categories=4&per_page=1&page={page}")')
+        logging.debug(f'conn.request("GET", f"wp-json/wp/v2/posts?_fields=link,id&sort=publish_date&categories=4&per_page=1&page={page}")')
     try:
         conn.request("GET", f"/wp-json/wp/v2/posts?_fields=title,link,id&sort=publish_date&categories=4&per_page=100&page={page}", "", headers)
         r1 = conn.getresponse()
@@ -83,19 +83,18 @@ def get_post_list():
         logging.debug(f"response is: {response}")
         logging.debug(f"response.getheaders() is: {response.getheaders()}")
         logging.debug(f"response.getheaders()[14] is: {response.getheaders()[14]}")
-# Uncomment to download all playlists
-#    for number in range(2, int(response.getheaders()[13][1]) + 1):
-#        if debug:
-#            logging.debug(f"Running for loop in get_post_list. number is: {number}")
-#        response = api_call_list(number)[1]
-#        if debug:
-#            logging.debug(f"response is: {response}\nresponse is type: {type(response)}")
-#            logging.debug(f"data is: {data}\n data is type: {type(data)}")
-#        for i in response:
-#            if debug:
-#                logging.debug(f"i is: {i}\ni is type: {type(i)}")
-#            data.append(i)
-#        time.sleep(1)
+    for number in range(2, int(response.getheaders()[13][1]) + 1):
+        if debug:
+            logging.debug(f"Running for loop in get_post_list. number is: {number}")
+        response = api_call_list(number)[1]
+        if debug:
+            logging.debug(f"response is: {response}\nresponse is type: {type(response)}")
+            logging.debug(f"data is: {data}\n data is type: {type(data)}")
+        for i in response:
+            if debug:
+                logging.debug(f"i is: {i}\ni is type: {type(i)}")
+            data.append(i)
+
     return data
 
 
@@ -103,9 +102,18 @@ def get_post_content(data):
     lst = []
     logging.info(f"Getting post data for {len(data)} posts")
     for i in data:
-        response = api_call_get(i["id"])
-        lst.append(response)
-        time.sleep(1)
+        # Check to see if the file already exists and is not empty before making API call for data
+        try:
+            name = i["link"].split("/")[3] + "." + i["link"].split("/")[6]
+        except:
+            logging.error(f"Failed to assign name when i in data is {i}")
+        if is_file_empty_3("archive/" + name):
+            logging.info(f"Collecting data for id: {i['id']}")
+            response = api_call_get(i["id"])
+            lst.append(response)
+            time.sleep(1)
+        else:
+            logging.info(f"The file {'archive/' + name} exists skip API call to get data")
 
     return lst
 
@@ -113,16 +121,27 @@ def get_post_content(data):
 def is_file_empty_3(file_name):
     """ Check if file is empty by reading first character in it"""
     # open ile in read mode
-    with open(file_name, 'r') as read_obj:
-        # read first character
-        one_char = read_obj.read(1)
-        # if not fetched then file is empty
-        if not one_char:
-           return True
-    return False
+    try:
+        with open(file_name, 'r') as read_obj:
+            # read first character
+            one_char = read_obj.read(1)
+            # if not fetched then file is empty
+            if not one_char:
+                logging.info(f"The file {file_name} exists but is empty")
+                return True
+            else:
+               logging.info(f"The file {file_name} exists and is not empty")
+               return False
+    except FileNotFoundError:
+        logging.info(f"The file {file_name} does not exist")
+        return  True
 
 
 def write_files(lst):
+    if len(lst) == 1:
+        logging.info(f"Writing data for one file")
+    else:
+        logging.info(f"Writing data for {len(lst)} files")
     for i in lst:
         name = i["date"].split("-", 1)[0] + "." + i["slug"]
         try:
